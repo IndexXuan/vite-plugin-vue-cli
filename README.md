@@ -9,5 +9,8 @@
 ## Usage
 - not recommended for standalone use, it is underlying `vue-cli-plugin-vite`
 
+## Thanks
+- many code from https://github.com/anncwb/vite-plugin-import-context
+
 ## Further
 - [vue-cli-plugin-vite](https://github.com/IndexXuan/vue-cli-plugin-vite)
