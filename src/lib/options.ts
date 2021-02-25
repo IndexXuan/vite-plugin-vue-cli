@@ -3,9 +3,11 @@
  */
 
 export interface VueCliOptions {
+  baseUrl?: string
   publicPath?: string
   outputDir?: string
   pages?: Record<string, any>
+  runtimeCompiler?: boolean
   productionSourceMap?: boolean
   css?: {
     sourceMap?: boolean
