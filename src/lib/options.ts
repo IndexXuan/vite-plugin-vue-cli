@@ -22,6 +22,7 @@ export interface VueCliOptions {
     port?: number
     proxy?: any
     https?: any
+    before?: any
   }
   pluginOptions?: Record<string, any>
 }
