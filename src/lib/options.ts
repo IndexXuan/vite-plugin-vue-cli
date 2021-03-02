@@ -18,11 +18,12 @@ export interface VueCliOptions {
   chainWebpack?: any
   devServer?: {
     open?: boolean
-    public?: any
+    host?: string
+    public?: string
     port?: number
     proxy?: any
     https?: any
-    before?: any
+    before?: Function
   }
   pluginOptions?: Record<string, any>
 }
