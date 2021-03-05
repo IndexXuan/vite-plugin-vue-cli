@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-vue-cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "transform vue.config.js options to vite.config.ts options",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,6 +30,9 @@
     "@babel/types": "7.12.17",
     "@rollup/pluginutils": "^4.1.0",
     "express": "4.17.1"
+  },
+  "peerDependencies": {
+    "vite": "~2.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "7.2.0",
