@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-vue-cli",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "transform vue.config.js options to vite.config.ts options",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
