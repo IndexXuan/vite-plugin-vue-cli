@@ -97,7 +97,7 @@ export function resolveDir(dirname = './', deep = false, regexp = /^\.\//) {
     files = [files]
   }
 
-  files = files.map((file: string) => normalizePath(`./${path.relative(dirname, file)}`))
+  files = files.map((file: string) => `./${normalizePath(path.relative(dirname, file))}`)
   return files.filter((file: string) => {
     const moduleAbsolutePath = getModuleAbsolutePath(dirname, file)
     const isFile = !fs.statSync(moduleAbsolutePath).isDirectory()
