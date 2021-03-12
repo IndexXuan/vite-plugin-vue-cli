@@ -12,7 +12,7 @@
   <a href="https://www.npmjs.com/package/vite-plugin-vue-cli" rel="nofollow">
     <img alt="npm version" src="https://img.shields.io/npm/v/vite-plugin-vue-cli.svg?style=flat" style="max-width:100%;">
   </a>
-  <a href="https://github.com/IndexXuan/vue-cli-plugin-vite/blob/main/LICENSE">
+  <a href="https://github.com/IndexXuan/vite-plugin-vue-cli/blob/main/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" style="max-width:100%;">
   </a>
 </p>
