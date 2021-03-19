@@ -15,3 +15,9 @@ export function isRegExp(val: unknown): val is RegExp {
 export function isArray(val: any): val is any[] {
   return val && Array.isArray(val)
 }
+
+export function clearRequireCache() {
+  Object.keys(require.cache).forEach(function (key) {
+    delete require.cache[key]
+  })
+}

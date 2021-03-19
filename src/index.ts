@@ -1,11 +1,16 @@
+import path from 'path'
 import type { Plugin, ResolvedConfig } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
-import type { UserOptions } from './lib/options'
+import type { VueCliOptions } from './lib/options'
 import { generateCode } from './lib/codegen'
+import { clearRequireCache } from './lib/utils'
 import { name } from '../package.json'
+import Config from 'webpack-chain'
+import merge from 'webpack-merge'
 import express from 'express'
 import methods from 'methods'
 
+const resolve = (p: string) => path.resolve(process.cwd(), p)
 const response = express.response
 
 declare module 'http' {
@@ -17,22 +22,68 @@ declare module 'http' {
   }
 }
 
-export default function vueCli(userOptions: UserOptions = {}): Plugin {
-  const options: UserOptions = {
-    ...userOptions,
-  }
+export default function vueCli(): Plugin {
   let config: ResolvedConfig
   const filter = createFilter(
     ['**/*.js', '**/*.ts', '**/*.tsx', '**/*.jsx', '**/*.vue'],
     'node_modules/**',
   )
-  const devServer = options.devServer || {}
-  const css = options.css || {}
+  // vue.config.js
+  let vueConfig: VueCliOptions = {}
   return {
     name,
     enforce: 'pre',
     config(config) {
-      config.base = process.env.PUBLIC_URL || options.publicPath || options.baseUrl || '/'
+      try {
+        clearRequireCache()
+        vueConfig = require(resolve('vue.config.js')) || {}
+      } catch (e) {
+        /**/
+      }
+
+      const devServer = vueConfig.devServer || {}
+      const css = vueConfig.css || {}
+      const runtimeCompiler = vueConfig.runtimeCompiler
+      const chainableConfig = new Config()
+      if (vueConfig.chainWebpack) {
+        vueConfig.chainWebpack(chainableConfig)
+      }
+      // @see {@link https://github.com/vuejs/vue-cli/blob/4ce7edd3754c3856c760d126f7fa3928f120aa2e/packages/%40vue/cli-service/lib/Service.js#L248}
+      const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
+      // @see {@link temp/webpack*.js & temp/vue.config.js}
+      const aliasOfConfigureWebpackObjectMode =
+        (vueConfig.configureWebpack &&
+          vueConfig.configureWebpack.resolve &&
+          vueConfig.configureWebpack.resolve.alias) ||
+        {}
+      const aliasOfConfigureWebpackFunctionMode = (() => {
+        if (typeof vueConfig.configureWebpack === 'function') {
+          let originConfig = chainableConfig.toConfig()
+          const res = vueConfig.configureWebpack(originConfig)
+          originConfig = merge(originConfig, res)
+          if (res) {
+            return res.resolve.alias || {}
+          }
+          return (originConfig.resolve && originConfig.resolve.alias) || {}
+        }
+      })()
+      const alias = {
+        // @see {@link https://github.com/vuejs/vue-cli/blob/0dccc4af380da5dc269abbbaac7387c0348c2197/packages/%40vue/cli-service/lib/config/base.js#L70}
+        vue: runtimeCompiler ? 'vue/dist/vue.esm.js' : 'vue/dist/vue.runtime.esm.js',
+        '@': resolve('src'),
+        // TODO: @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
+        // '~': '',
+        // high-priority for user-provided alias
+        ...aliasOfConfigureWebpackObjectMode,
+        ...aliasOfConfigureWebpackFunctionMode,
+        ...aliasOfChainWebpack,
+      }
+
+      config.resolve = config.resolve || {}
+      // not support other plugins injected alias
+      config.resolve.alias = alias
+
+      config.base = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/'
 
       config.css = config.css || {}
       config.css.preprocessorOptions = css.loaderOptions
@@ -47,11 +98,11 @@ export default function vueCli(userOptions: UserOptions = {}): Plugin {
       config.server.proxy = devServer.proxy
 
       config.build = config.build || {}
-      config.build.outDir = options.outputDir || 'dist'
+      config.build.outDir = vueConfig.outputDir || 'dist'
       config.build.cssCodeSplit = Boolean(css.extract)
       config.build.minify = process.env.MODERN === 'true' ? 'esbuild' : 'terser'
       config.build.sourcemap =
-        process.env.GENERATE_SOURCEMAP === 'true' || options.productionSourceMap || css.sourceMap
+        process.env.GENERATE_SOURCEMAP === 'true' || vueConfig.productionSourceMap || css.sourceMap
     },
 
     configResolved(resolvedConfig) {
@@ -59,7 +110,7 @@ export default function vueCli(userOptions: UserOptions = {}): Plugin {
     },
 
     configureServer(server) {
-      if (typeof devServer.before === 'function') {
+      if (typeof vueConfig.devServer?.before === 'function') {
         try {
           // alias as app
           const app = server.middlewares
@@ -94,7 +145,7 @@ export default function vueCli(userOptions: UserOptions = {}): Plugin {
           })
 
           // invoke user-provided service
-          devServer.before(app)
+          vueConfig.devServer.before(app)
         } catch (e) {
           console.error(e)
         }
@@ -116,5 +167,3 @@ export default function vueCli(userOptions: UserOptions = {}): Plugin {
     },
   }
 }
-
-export type { UserOptions as VueCliOptions }
