@@ -8,6 +8,7 @@ import { name } from '../package.json'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
 import express from 'express'
+import { template } from 'lodash'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 const response = express.response
@@ -136,6 +137,14 @@ export default function vueCli(): Plugin {
           console.error(e)
         }
       }
+    },
+    transformIndexHtml: {
+      enforce: 'pre',
+      transform(html) {
+        const compiled = template(html)
+        html = compiled(process.env)
+        return html
+      },
     },
     async transform(code, id) {
       const includedFiles = filter(id)
