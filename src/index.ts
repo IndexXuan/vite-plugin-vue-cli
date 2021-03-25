@@ -8,10 +8,12 @@ import { name } from '../package.json'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
 import express from 'express'
-import methods from 'methods'
+import { template } from 'lodash'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 const response = express.response
+// Todo: After the merge type defines PR, we can switch to ESM import mode。@see {@link https://github.com/pillarjs/router/pull/76}
+const Router = require('router')
 
 declare module 'http' {
   interface ServerResponse {
@@ -51,11 +53,7 @@ export default function vueCli(): Plugin {
       // @see {@link https://github.com/vuejs/vue-cli/blob/4ce7edd3754c3856c760d126f7fa3928f120aa2e/packages/%40vue/cli-service/lib/Service.js#L248}
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       // @see {@link temp/webpack*.js & temp/vue.config.js}
-      const aliasOfConfigureWebpackObjectMode =
-        (vueConfig.configureWebpack &&
-          vueConfig.configureWebpack.resolve &&
-          vueConfig.configureWebpack.resolve.alias) ||
-        {}
+      const aliasOfConfigureWebpackObjectMode = vueConfig?.configureWebpack?.resolve?.alias || {}
       const aliasOfConfigureWebpackFunctionMode = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
           let originConfig = chainableConfig.toConfig()
@@ -129,29 +127,25 @@ export default function vueCli(): Plugin {
             next()
           })
 
-          // add app.get/post/... methods
-          // @see https://github.com/senchalabs/connect/issues/1100#issuecomment-360214055
-          function switcher(method: typeof methods[number], cb: Function) {
-            // @ts-ignore
-            return (req, res, next) => {
-              return req.method.toLowerCase() === method ? cb(req, res, next) : next()
-            }
-          }
-          methods.forEach(method => {
-            // @ts-ignore
-            app[method] = (path: string, cb: Function) => {
-              app.use(path, switcher(method, cb))
-            }
-          })
-
-          // invoke user-provided service
-          vueConfig.devServer.before(app)
+          // provide middleware-style router
+          const router = new Router()
+          // use pillarjs/router instead of Express.app。We can't merge them because there are a lot of property conflicts
+          vueConfig.devServer.before(router)
+          // must call app.use(router) after devServer.before. Otherwise, the router.route will be overridden by VITE
+          app.use(router)
         } catch (e) {
           console.error(e)
         }
       }
     },
-
+    transformIndexHtml: {
+      enforce: 'pre',
+      transform(html) {
+        const compiled = template(html)
+        html = compiled(process.env)
+        return html
+      },
+    },
     async transform(code, id) {
       const includedFiles = filter(id)
       const shouldTransformRequireContext = /require.context/g.test(code)
