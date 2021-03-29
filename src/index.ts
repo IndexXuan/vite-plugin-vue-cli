@@ -84,7 +84,7 @@ export default function vueCli(): Plugin {
       config.css = config.css || {}
       config.css.preprocessorOptions = css.loaderOptions
       config.server = config.server || {}
-      config.server.strictPort = true
+      config.server.strictPort = false
       config.server.port = Number(process.env.PORT) || devServer.port
       ;(config.server.host = (process.env.DEV_HOST || devServer.public || devServer.host || '')
         .replace('http://', '')
