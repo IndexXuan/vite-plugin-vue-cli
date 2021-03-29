@@ -9,12 +9,10 @@ import Config from 'webpack-chain'
 import merge from 'webpack-merge'
 import express from 'express'
 import { template } from 'lodash'
+import methods from 'methods'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 const response = express.response
-// Todo: After the merge type defines PR, we can switch to ESM import mode。@see {@link https://github.com/pillarjs/router/pull/76}
-const Router = require('router')
-
 declare module 'http' {
   interface ServerResponse {
     req: any
@@ -127,12 +125,29 @@ export default function vueCli(): Plugin {
             next()
           })
 
-          // provide middleware-style router
-          const router = new Router()
-          // use pillarjs/router instead of Express.app。We can't merge them because there are a lot of property conflicts
-          vueConfig.devServer.before(router)
-          // must call app.use(router) after devServer.before. Otherwise, the router.route will be overridden by VITE
-          app.use(router)
+          // add app.get/post/... methods
+          // @see https://github.com/senchalabs/connect/issues/1100#issuecomment-360214055
+          function switcher(method: typeof methods[number], cb: Function) {
+            // @ts-ignore
+            return (req, res, next) => {
+              return req.method.toLowerCase() === method ? cb(req, res, next) : next()
+            }
+          }
+          methods.forEach(method => {
+            // @ts-ignore
+            app[method] = (path: string, cb: Function) => {
+              // @ts-ignore
+              app.use(path, switcher(method, cb))
+            }
+          })
+          // @ts-ignore
+          app.all = (path: string, cb: Function) => {
+            // @ts-ignore
+            app.use(path, cb)
+          }
+
+          // invoke user-provided service
+          vueConfig.devServer.before(app)
         } catch (e) {
           console.error(e)
         }
