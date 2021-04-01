@@ -157,7 +157,13 @@ export default function vueCli(): Plugin {
       enforce: 'pre',
       transform(html) {
         const compiled = template(html)
-        html = compiled(process.env)
+        const vueCliData = {
+          BASE_URL: config.base,
+        }
+        html = compiled({
+          ...process.env,
+          ...vueCliData,
+        })
         return html
       },
     },

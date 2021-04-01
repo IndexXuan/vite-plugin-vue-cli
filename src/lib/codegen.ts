@@ -41,7 +41,7 @@ function patchCodeWithModuleHot(babelResult: BabelFileResult, code: string) {
 export function generateCode(code: string, id: string, alias: Alias[]) {
   // setup
   const plugins = []
-  if (id.endsWith('.tsx')) {
+  if (id.endsWith('.tsx') || id.endsWith('.ts')) {
     plugins.push([
       require('@babel/plugin-transform-typescript'),
       { isTSX: true, allowExtensions: true },
