@@ -7,12 +7,6 @@ on:
       # Push events on main branch
       - main
 
-  pull_request:
-    # Sequence of patterns matched against refs/heads
-    branches:    
-      # Push events on main branch
-      - main
-
 jobs:
   publish:
     runs-on: ubuntu-latest
