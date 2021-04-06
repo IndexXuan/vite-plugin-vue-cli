@@ -22,6 +22,8 @@ declare module 'http' {
   }
 }
 
+export type { VueCliOptions }
+
 export default function vueCli(): Plugin {
   let config: ResolvedConfig
   const filter = createFilter(
