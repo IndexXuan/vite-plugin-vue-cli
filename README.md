@@ -3,14 +3,15 @@
 > input vue.config.js options, patch corresponding vite.config.js options
 
 <p align="center">
+  <img alt="wakatime" src="https://wakatime.com/badge/github/IndexXuan/vite-plugin-vue-cli.svg" />
   <a href="https://github.com/IndexXuan/vite-plugin-vue-cli/actions/workflows/npm-publish.yml">
    <img alt="NPM Publish" src="https://github.com/IndexXuan/vite-plugin-vue-cli/actions/workflows/npm-publish.yml/badge.svg" style="max-width:100%;">
   </a>
   <a href="https://www.npmjs.com/package/vite-plugin-vue-cli" rel="nofollow">
-    <img alt="downloads" src="https://img.shields.io/npm/dt/vite-plugin-vue-cli.svg?style=flat-square">
+    <img alt="downloads" src="https://img.shields.io/npm/dt/vite-plugin-vue-cli.svg">
   </a>
   <a href="https://www.npmjs.com/package/vite-plugin-vue-cli" rel="nofollow">
-    <img alt="npm version" src="https://img.shields.io/npm/v/vite-plugin-vue-cli.svg?style=flat" style="max-width:100%;">
+    <img alt="npm version" src="https://img.shields.io/npm/v/vite-plugin-vue-cli.svg" style="max-width:100%;">
   </a>
   <a href="https://github.com/IndexXuan/vite-plugin-vue-cli/blob/main/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" style="max-width:100%;">
