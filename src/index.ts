@@ -1,5 +1,6 @@
 import path from 'path'
 import type { Plugin, ResolvedConfig } from 'vite'
+import semver from 'semver'
 import { createFilter } from '@rollup/pluginutils'
 import type { VueCliOptions } from './lib/options'
 import { generateCode } from './lib/codegen'
@@ -65,9 +66,26 @@ export default function vueCli(): Plugin {
           return (originConfig.resolve && originConfig.resolve.alias) || {}
         }
       })()
+
+      /**
+       * @see {@link https://github.com/vuejs/vue-cli/blob/aad72cfa7880a0e327be06b3b9c3ac3d3b3c9abc/packages/%40vue/babel-preset-app/index.js#L124}
+       */
+      let vueVersion = 2
+      try {
+        const Vue = require('vue')
+        vueVersion = semver.major(Vue.version)
+      } catch (e) {}
       const alias = {
         // @see {@link https://github.com/vuejs/vue-cli/blob/0dccc4af380da5dc269abbbaac7387c0348c2197/packages/%40vue/cli-service/lib/config/base.js#L70}
-        vue: runtimeCompiler ? 'vue/dist/vue.esm.js' : 'vue/dist/vue.runtime.esm.js',
+        // @see {@link https://github.com/vuejs/vue-cli/blob/ae967f769817b2e6dba19a3c0d171be48f67f2a2/packages/%40vue/cli-service/lib/config/base.js#L109}
+        vue:
+          vueVersion === 2
+            ? runtimeCompiler
+              ? 'vue/dist/vue.esm.js'
+              : 'vue/dist/vue.runtime.esm.js'
+            : runtimeCompiler
+            ? 'vue/dist/vue.esm-bundler.js'
+            : 'vue/dist/vue.runtime.esm-bundler.js',
         '@': resolve('src'),
         // TODO: @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
         // '~': '',

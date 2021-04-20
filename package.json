@@ -30,7 +30,9 @@
     "@babel/traverse": "^7.12.12",
     "@babel/types": "7.12.17",
     "@rollup/pluginutils": "^4.1.0",
-    "express": "4.17.1"
+    "@types/semver": "7.3.4",
+    "express": "4.17.1",
+    "semver": "7.3.5"
   },
   "peerDependencies": {
     "vite": "~2.0.0"
