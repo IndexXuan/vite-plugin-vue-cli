@@ -21,17 +21,17 @@ function parseAlias(alias: Alias[], dir: string) {
   if (isArray(alias)) {
     for (let index = 0; index < alias.length; index++) {
       const { find, replacement } = alias[index]
-      // The first one is built in vite
-      // ignore
-      if (index === 0) continue
       if (isString(find)) {
         if (dir.startsWith(find)) {
           realDir = dir.replace(new RegExp(`^${find}`), replacement)
           match = true
         }
       } else if (isRegExp(find)) {
-        realDir = dir.replace(find, replacement)
-        match = true
+        // if matched, then mark match as true
+        if (dir.match(find)) {
+          realDir = dir.replace(find, replacement)
+          match = true
+        }
       }
     }
   }

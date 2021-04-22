@@ -1,5 +1,5 @@
 import path from 'path'
-import type { Plugin, ResolvedConfig } from 'vite'
+import type { Alias, Plugin, ResolvedConfig } from 'vite'
 import semver from 'semver'
 import { createFilter } from '@rollup/pluginutils'
 import type { VueCliOptions } from './lib/options'
@@ -78,7 +78,7 @@ export default function vueCli(): Plugin {
       const alias = {
         // @see {@link https://github.com/vuejs/vue-cli/blob/0dccc4af380da5dc269abbbaac7387c0348c2197/packages/%40vue/cli-service/lib/config/base.js#L70}
         // @see {@link https://github.com/vuejs/vue-cli/blob/ae967f769817b2e6dba19a3c0d171be48f67f2a2/packages/%40vue/cli-service/lib/config/base.js#L109}
-        vue:
+        vue: require.resolve(
           vueVersion === 2
             ? runtimeCompiler
               ? 'vue/dist/vue.esm.js'
@@ -86,7 +86,8 @@ export default function vueCli(): Plugin {
             : runtimeCompiler
             ? 'vue/dist/vue.esm-bundler.js'
             : 'vue/dist/vue.runtime.esm-bundler.js',
-        '@': resolve('src'),
+        ),
+        // '@': resolve('src'), // included by webpack alias
         // TODO: @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
         // '~': '',
         // high-priority for user-provided alias
@@ -97,7 +98,15 @@ export default function vueCli(): Plugin {
 
       config.resolve = config.resolve || {}
       // not support other plugins injected alias
-      config.resolve.alias = alias
+      const aliasArr = Object.keys(alias).reduce<Alias[]>((result, key) => {
+        result.push({
+          find: key,
+          replacement: alias[key],
+        })
+        return result
+      }, [])
+      const finalAlias = [{ find: /^~/, replacement: '' }, ...aliasArr]
+      config.resolve.alias = finalAlias
 
       config.base = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/'
 
