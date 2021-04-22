@@ -87,9 +87,7 @@ export default function vueCli(): Plugin {
             ? 'vue/dist/vue.esm-bundler.js'
             : 'vue/dist/vue.runtime.esm-bundler.js',
         ),
-        // '@': resolve('src'), // included by webpack alias
-        // TODO: @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
-        // '~': '',
+        '@': resolve('src'),
         // high-priority for user-provided alias
         ...aliasOfConfigureWebpackObjectMode,
         ...aliasOfConfigureWebpackFunctionMode,
@@ -105,6 +103,10 @@ export default function vueCli(): Plugin {
         })
         return result
       }, [])
+      /**
+       * @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
+       * support import '~ant-design-vue/xxx/index.css' => `~`
+       */
       const finalAlias = [{ find: /^~/, replacement: '' }, ...aliasArr]
       config.resolve.alias = finalAlias
 
