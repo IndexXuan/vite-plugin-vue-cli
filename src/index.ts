@@ -117,7 +117,12 @@ export default function vueCli(): Plugin {
       config.server = config.server || {}
       config.server.strictPort = false
       config.server.port = Number(process.env.PORT) || devServer.port
-      ;(config.server.host = (process.env.DEV_HOST || devServer.public || devServer.host || '')
+      ;(config.server.host = (
+        process.env.DEV_HOST ||
+        devServer.public ||
+        devServer.host ||
+        'localhost'
+      )
         .replace('http://', '')
         .replace('https://', '')),
         (config.server.open = process.platform === 'darwin' || devServer.open)
