@@ -7,6 +7,7 @@ export interface VueCliOptions {
   publicPath?: string
   outputDir?: string
   pages?: Record<string, any>
+  lintOnSave?: boolean | 'warning' | 'default' | 'error'
   runtimeCompiler?: boolean
   productionSourceMap?: boolean
   css?: {
