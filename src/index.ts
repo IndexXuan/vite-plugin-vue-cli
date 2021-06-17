@@ -211,6 +211,14 @@ export default function vueCli(): Plugin {
       if (!includedFiles || !shouldTransform) {
         return
       }
+      // use as keywords, not supported.
+      // @see {@link https://webpack.js.org/api/module-variables/#modulehot-webpack-specific}
+      if (code.includes('module ')) {
+        console.error(
+          `[${name}]: \`module\` is reserved keyword, should only use with \`module.hot\`. parsing error at ${id}`,
+        )
+        return process.exit(1)
+      }
       code = generateCode(code, id, config.resolve.alias)
       return {
         code,
