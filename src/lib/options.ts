@@ -19,6 +19,12 @@ export interface VueCliOptions {
   chainWebpack?: any
   devServer?: {
     open?: boolean
+    overlay?:
+      | boolean
+      | {
+          warnings?: boolean
+          errors?: boolean
+        }
     host?: string
     public?: string
     port?: number
