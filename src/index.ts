@@ -87,7 +87,11 @@ export default function vueCli(): Plugin {
             ? 'vue/dist/vue.esm-bundler.js'
             : 'vue/dist/vue.runtime.esm-bundler.js',
         ),
+        // for vue-cli common usecase
         '@': resolve('src'),
+        // for vue-cli(webpack css-loader) in Vue SFC style background url or something
+        // @see https://webpack.js.org/loaders/css-loader/#url, not work
+        // '~@': resolve('src'),
         // high-priority for user-provided alias
         ...aliasOfConfigureWebpackObjectMode,
         ...aliasOfConfigureWebpackFunctionMode,
@@ -211,9 +215,13 @@ export default function vueCli(): Plugin {
       if (!includedFiles || !shouldTransform) {
         return
       }
-      // use as keywords, not supported.
+      // remove comments
+      const parsedCode = code
+        .replace(/(\s*(?<!\\)\/\/.*$)|(\s*(?<!\\)\/\*[\s\S]*?(?<!\\)\*\/)/gm, '')
+        .replace(/[\r\n\s]/g, '')
+      // use as keywords, not supported. e.g. var module=xxx
       // @see {@link https://webpack.js.org/api/module-variables/#modulehot-webpack-specific}
-      if (code.includes('module ')) {
+      if (parsedCode.includes(' module')) {
         console.error(
           `[${name}]: \`module\` is reserved keyword, should only use with \`module.hot\`. parsing error at ${id}`,
         )
