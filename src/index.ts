@@ -54,16 +54,17 @@ export default function vueCli(): Plugin {
       // @see {@link https://github.com/vuejs/vue-cli/blob/4ce7edd3754c3856c760d126f7fa3928f120aa2e/packages/%40vue/cli-service/lib/Service.js#L248}
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       // @see {@link temp/webpack*.js & temp/vue.config.js}
-      const aliasOfConfigureWebpackObjectMode = vueConfig?.configureWebpack?.resolve?.alias || {}
-      const aliasOfConfigureWebpackFunctionMode = (() => {
+      const aliasOfConfigureWebpack = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
           let originConfig = chainableConfig.toConfig()
           const res = vueConfig.configureWebpack(originConfig)
           originConfig = merge(originConfig, res)
           if (res) {
-            return res.resolve.alias || {}
+            return (res.resolve && res.resolve.alias) || {}
           }
           return (originConfig.resolve && originConfig.resolve.alias) || {}
+        } else {
+          return vueConfig?.configureWebpack?.resolve?.alias || {}
         }
       })()
 
@@ -93,8 +94,7 @@ export default function vueCli(): Plugin {
         // @see https://webpack.js.org/loaders/css-loader/#url, not work
         // '~@': resolve('src'),
         // high-priority for user-provided alias
-        ...aliasOfConfigureWebpackObjectMode,
-        ...aliasOfConfigureWebpackFunctionMode,
+        ...aliasOfConfigureWebpack,
         ...aliasOfChainWebpack,
       }
 
@@ -102,8 +102,9 @@ export default function vueCli(): Plugin {
       // not support other plugins injected alias
       const aliasArr = Object.keys(alias).reduce<Alias[]>((result, key) => {
         result.push({
-          find: key,
-          replacement: alias[key],
+          // @see https://webpack.js.org/configuration/resolve/#resolvealias
+          find: key.replace('$', ''),
+          replacement: alias[key as keyof typeof alias],
         })
         return result
       }, [])
@@ -209,16 +210,16 @@ export default function vueCli(): Plugin {
     },
     async transform(code, id) {
       const includedFiles = filter(id)
-      const shouldTransformRequireContext = /require.context/g.test(code)
-      const shouldTransformModuleHot = /module.hot/g.test(code)
-      const shouldTransform = shouldTransformRequireContext || shouldTransformModuleHot
-      if (!includedFiles || !shouldTransform) {
-        return
-      }
       // remove comments
       const parsedCode = code
         .replace(/(\s*(?<!\\)\/\/.*$)|(\s*(?<!\\)\/\*[\s\S]*?(?<!\\)\*\/)/gm, '')
         .replace(/[\r\n\s]/g, '')
+      const shouldTransformRequireContext = /require.context/g.test(parsedCode)
+      const shouldTransformModuleHot = /module.hot/g.test(parsedCode)
+      const shouldTransform = shouldTransformRequireContext || shouldTransformModuleHot
+      if (!includedFiles || !shouldTransform) {
+        return
+      }
       // use as keywords, not supported. e.g. var module=xxx
       // @see {@link https://webpack.js.org/api/module-variables/#modulehot-webpack-specific}
       if (parsedCode.includes(' module')) {

@@ -1,7 +1,9 @@
+import type Config from 'webpack-chain'
+import type webpack from 'webpack'
+
 /**
  * Plugin options.
  */
-
 export interface VueCliOptions {
   baseUrl?: string
   publicPath?: string
@@ -15,8 +17,15 @@ export interface VueCliOptions {
     loaderOptions?: Record<string, any>
     extract?: any
   }
-  configureWebpack?: any
-  chainWebpack?: any
+  configureWebpack?:
+    | {
+        externals?: Record<string, string>
+        resolve?: {
+          alias?: Record<string, string>
+        }
+      }
+    | ((config: webpack.Configuration) => webpack.Configuration)
+  chainWebpack?: (config: Config) => any // dont care about the return value.
   devServer?: {
     open?: boolean
     overlay?:
