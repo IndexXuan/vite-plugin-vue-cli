@@ -5,18 +5,6 @@ const cssLangRE = new RegExp(cssLangs)
 const cssUrlRE = /(?:^|[^\w\-\u0080-\uffff])url\(\s*('[^']+'|"[^"]+"|[^'")]+)\s*\)/
 
 /**
- * @see {@link https://github.com/vuejs/vue-next/blob/ab6e927041e4082acac9a5effe332557e70e4f2a/packages/compiler-sfc/src/templateUtils.ts#L24}
- */
-export function parseUrl(url: string) {
-  const firstChar = url.charAt(0)
-  if (firstChar === '~') {
-    const secondChar = url.charAt(1)
-    return url.slice(secondChar === '/' ? 2 : 1)
-  }
-  return ''
-}
-
-/**
  * Plugin applied before user plugins
  */
 export default function cssLoaderCompat(): Plugin {
@@ -28,8 +16,11 @@ export default function cssLoaderCompat(): Plugin {
       if (!cssLangRE.test(id)) {
         return
       }
+      /**
+       * @see {@link https://github.com/vuejs/vue-next/blob/ab6e927041e4082acac9a5effe332557e70e4f2a/packages/compiler-sfc/src/templateUtils.ts#L24}
+       */
       const css = code.replace(cssUrlRE, matchedUrl => {
-        return parseUrl(matchedUrl)
+        return matchedUrl.replace('~', '')
       })
 
       return css
