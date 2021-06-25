@@ -11,6 +11,7 @@ import merge from 'webpack-merge'
 import express from 'express'
 import { template } from 'lodash'
 import methods from 'methods'
+import cssLoaderCompat from './css-loader-compat'
 
 const resolve = (p: string) => path.resolve(process.cwd(), p)
 const response = express.response
@@ -24,6 +25,8 @@ declare module 'http' {
 }
 
 export type { VueCliOptions }
+
+export { cssLoaderCompat }
 
 export default function vueCli(): Plugin {
   let config: ResolvedConfig
