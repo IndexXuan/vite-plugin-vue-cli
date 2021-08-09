@@ -135,7 +135,7 @@ export default function vueCli(): Plugin {
       // support BASE_URL like vue-cli
       config.define = {
         ...(config.define || {}),
-        'process.env.BASE_URL': config.base,
+        'process.env.BASE_URL': JSON.stringify(config.base),
       }
 
       config.css = config.css || {}
