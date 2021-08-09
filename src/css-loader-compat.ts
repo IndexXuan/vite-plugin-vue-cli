@@ -3,6 +3,8 @@ import type { Plugin } from 'vite'
 const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
 const cssLangRE = new RegExp(cssLangs)
 const cssUrlRE = /(?:^|[^\w\-\u0080-\uffff])url\(\s*('[^']+'|"[^"]+"|[^'")]+)\s*\)/
+const vueLangs = /\.(vue)$|vue&type=template|vue&type=style/
+const publicReg = /(['|"])~?\/?public(\/)/g
 
 /**
  * Plugin applied before user plugins
@@ -13,17 +15,19 @@ export default function cssLoaderCompat(): Plugin {
     enforce: 'pre',
 
     async transform(code, id) {
-      if (!cssLangRE.test(id)) {
+      let ret = code
+      if (!cssLangRE.test(id) || !(vueLangs.test(id) && publicReg.test(code))) {
         return
       }
       /**
        * @see {@link https://github.com/vuejs/vue-next/blob/ab6e927041e4082acac9a5effe332557e70e4f2a/packages/compiler-sfc/src/templateUtils.ts#L24}
        */
-      const css = code.replace(cssUrlRE, matchedUrl => {
+      ret = ret.replace(cssUrlRE, matchedUrl => {
         return matchedUrl.replace('~', '')
       })
 
-      return css
+      ret = ret.replace(publicReg, '$1$2')
+      return ret
     },
   }
 }
