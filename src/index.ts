@@ -230,9 +230,6 @@ export default function vueCli(): Plugin {
       },
     },
     async transform(code, id) {
-      // The way Vue Cli handles templates is different from vite
-      code = templateTransform(code, id)
-
       const includedFiles = filter(id)
       // remove comments
       const parsedCode = code
