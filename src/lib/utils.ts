@@ -21,3 +21,25 @@ export function clearRequireCache() {
     delete require.cache[key]
   })
 }
+
+/**
+ * /(['|"])\/?public(\/)/g
+ *   - <template> <img src='~public/img/403.png'/> </template>"
+ *   - <template><img src="~/public/img/403.svg" /></template>
+ *
+ *   - <style> #app{ background: url('~public/img/403.png') } </style>
+ *
+ * @param code : the code of Vue SFC
+ * @param id : file path
+ */
+export function templateTransform(code: string, id: string) {
+  const vueLangs = /\.(vue)$|vue&type=template|vue&type=style/
+  const publicReg = /(['|"])~?\/?public(\/)/g
+
+  // Avoid duplicate exec
+  if (vueLangs.test(id) && publicReg.test(code)) {
+    code = code.replace(publicReg, '$1$2')
+  }
+
+  return code
+}

@@ -4,7 +4,7 @@ import semver from 'semver'
 import { createFilter } from '@rollup/pluginutils'
 import type { VueCliOptions } from './lib/options'
 import { generateCode } from './lib/codegen'
-import { clearRequireCache } from './lib/utils'
+import { clearRequireCache, templateTransform } from './lib/utils'
 import { name } from '../package.json'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
@@ -112,10 +112,22 @@ export default function vueCli(): Plugin {
         return result
       }, [])
       /**
-       * @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
-       * support import '~ant-design-vue/xxx/index.css' => `~`
+       * - /^~@\//
+       *   *.vue  <template></template><style lang="xxx" scoped> @import '~@/styles/colors.less'; </style>
+       *   *.less  @import '~@/styles/colors.less'
+       *
+       * - /^~/
+       *   @see {@link https://github.com/vitejs/vite/issues/2185#issuecomment-784637827}
+       *   support import '~ant-design-vue/xxx/index.css' => `~`
        */
-      const finalAlias = [{ find: /^~/, replacement: '' }, ...aliasArr]
+      const defaultAlias = [
+        {
+          find: /^~@\//,
+          replacement: path.join(process.cwd(), './src/'),
+        },
+        { find: /^~/, replacement: '' },
+      ]
+      const finalAlias = [...defaultAlias, ...aliasArr]
       config.resolve.alias = finalAlias
 
       config.base = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/'
@@ -212,6 +224,9 @@ export default function vueCli(): Plugin {
       },
     },
     async transform(code, id) {
+      // The way Vue Cli handles templates is different from vite
+      code = templateTransform(code, id)
+
       const includedFiles = filter(id)
       // remove comments
       const parsedCode = code
@@ -221,7 +236,7 @@ export default function vueCli(): Plugin {
       const shouldTransformModuleHot = /module.hot/g.test(parsedCode)
       const shouldTransform = shouldTransformRequireContext || shouldTransformModuleHot
       if (!includedFiles || !shouldTransform) {
-        return
+        return code
       }
       // use as keywords, not supported. e.g. var module=xxx
       // @see {@link https://webpack.js.org/api/module-variables/#modulehot-webpack-specific}
