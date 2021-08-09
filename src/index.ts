@@ -4,7 +4,7 @@ import semver from 'semver'
 import { createFilter } from '@rollup/pluginutils'
 import type { VueCliOptions } from './lib/options'
 import { generateCode } from './lib/codegen'
-import { clearRequireCache, templateTransform } from './lib/utils'
+import { clearRequireCache } from './lib/utils'
 import { name } from '../package.json'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
@@ -131,6 +131,12 @@ export default function vueCli(): Plugin {
       config.resolve.alias = finalAlias
 
       config.base = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/'
+
+      // support BASE_URL like vue-cli
+      config.define = {
+        ...(config.define || {}),
+        'process.env.BASE_URL': config.base,
+      }
 
       config.css = config.css || {}
       config.css.preprocessorOptions = css.loaderOptions
