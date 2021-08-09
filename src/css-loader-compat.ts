@@ -16,7 +16,7 @@ export default function cssLoaderCompat(): Plugin {
 
     async transform(code, id) {
       let ret = code
-      if (!cssLangRE.test(id) || !(vueLangs.test(id) && publicReg.test(code))) {
+      if (!cssLangRE.test(id) && !(vueLangs.test(id) && publicReg.test(code))) {
         return
       }
       /**
