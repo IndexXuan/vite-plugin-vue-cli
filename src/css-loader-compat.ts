@@ -4,7 +4,7 @@ const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
 const cssLangRE = new RegExp(cssLangs)
 const cssUrlRE = /(?:^|[^\w\-\u0080-\uffff])url\(\s*('[^']+'|"[^"]+"|[^'")]+)\s*\)/
 const vueLangs = /\.(vue)$|vue&type=template|vue&type=style/
-const publicReg = /(['|"])~?\/?public(\/)/g
+const publicRe = /(['|"])~?\/?public(\/)/g
 
 /**
  * Plugin applied before user plugins
@@ -16,7 +16,7 @@ export default function cssLoaderCompat(): Plugin {
 
     async transform(code, id) {
       let ret = code
-      if (!cssLangRE.test(id) && !(vueLangs.test(id) && publicReg.test(code))) {
+      if (!cssLangRE.test(id) && !(vueLangs.test(id) && publicRe.test(code))) {
         return
       }
       /**
@@ -26,7 +26,7 @@ export default function cssLoaderCompat(): Plugin {
         return matchedUrl.replace('~', '')
       })
 
-      ret = ret.replace(publicReg, '$1$2')
+      ret = ret.replace(publicRe, '$1$2')
       return ret
     },
   }
