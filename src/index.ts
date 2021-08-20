@@ -42,7 +42,7 @@ export default function vueCli(): Plugin {
     config(config) {
       try {
         clearRequireCache()
-        vueConfig = require(resolve('vue.config.js')) || {}
+        vueConfig = require(resolve(process.env.CLI_CONFIG_FILE || 'vue.config.js')) || {}
       } catch (e) {
         /**/
       }
