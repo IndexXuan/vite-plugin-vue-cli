@@ -139,6 +139,12 @@ export default function vueCli(): Plugin {
       }
 
       config.css = config.css || {}
+      /** @see {@link https://github.com/IndexXuan/vue-cli-plugin-vite/issues/44#issuecomment-905299747} */
+      css.loaderOptions &&
+        Object.entries(css.loaderOptions).forEach(([loader, options]) => {
+          // merge lessOptions/sassOptions to options for vite(sass/less) if exists
+          Object.assign(options, { ...options?.[`${loader}Options`] })
+        })
       config.css.preprocessorOptions = css.loaderOptions
       config.server = config.server || {}
       config.server.strictPort = false
