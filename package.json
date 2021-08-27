@@ -34,9 +34,6 @@
     "express": "4.17.1",
     "semver": "7.3.5"
   },
-  "peerDependencies": {
-    "vite": "~2.0.0"
-  },
   "devDependencies": {
     "@commitlint/cli": "7.2.0",
     "@commitlint/config-conventional": "7.1.2",
@@ -69,7 +66,7 @@
     "trailingComma": "all",
     "bracketSpacing": true,
     "jsxBracketSameLine": false,
-    "arrowParens": "avoid"
+    "arrowParens": "always"
   },
   "config": {
     "commitizen": {
