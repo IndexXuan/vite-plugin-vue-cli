@@ -34,6 +34,10 @@
     "express": "4.17.1",
     "semver": "7.3.5"
   },
+  "peerDependenciesinfo": "这里不加，tsup 构建将会报错 fsevents，不知道为啥",
+  "peerDependencies": {
+    "vite": "~2.0.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "7.2.0",
     "@commitlint/config-conventional": "7.1.2",

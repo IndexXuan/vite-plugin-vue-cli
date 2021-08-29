@@ -186,7 +186,7 @@ export default function vueCli(): Plugin {
             }
             res.req = req
             res.app = app
-            Object.keys(response).forEach(method => {
+            Object.keys(response).forEach((method) => {
               // @ts-ignore
               res[method] = response[method].bind(res)
             })
@@ -201,7 +201,7 @@ export default function vueCli(): Plugin {
               return req.method.toLowerCase() === method ? cb(req, res, next) : next()
             }
           }
-          methods.forEach(method => {
+          methods.forEach((method) => {
             // @ts-ignore
             app[method] = (path: string, cb: Function) => {
               // @ts-ignore
@@ -245,7 +245,7 @@ export default function vueCli(): Plugin {
       const shouldTransformModuleHot = /module.hot/g.test(parsedCode)
       const shouldTransform = shouldTransformRequireContext || shouldTransformModuleHot
       if (!includedFiles || !shouldTransform) {
-        return code
+        return { code, map: null }
       }
       // use as keywords, not supported. e.g. var module=xxx
       // @see {@link https://webpack.js.org/api/module-variables/#modulehot-webpack-specific}
@@ -258,6 +258,7 @@ export default function vueCli(): Plugin {
       code = generateCode(code, id, config.resolve.alias)
       return {
         code,
+        map: null,
       }
     },
   }

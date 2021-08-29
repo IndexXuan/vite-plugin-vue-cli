@@ -30,11 +30,11 @@ export default function cssLoaderCompat(): Plugin {
       /**
        * @see {@link https://github.com/vuejs/vue-next/blob/ab6e927041e4082acac9a5effe332557e70e4f2a/packages/compiler-sfc/src/templateUtils.ts#L24}
        */
-      ret = ret.replace(cssUrlRE, matchedUrl => {
+      ret = ret.replace(cssUrlRE, (matchedUrl) => {
         return matchedUrl.replace('~', '')
       })
 
-      return ret
+      return { code: ret, map: null }
     },
   }
 }
