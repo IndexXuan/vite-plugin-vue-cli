@@ -129,6 +129,15 @@ export default function vueCli(): Plugin {
       ]
       const finalAlias = [...defaultAlias, ...aliasArr]
       config.resolve.alias = finalAlias
+      // infer extensions
+      const extensions =
+        typeof vueConfig?.configureWebpack === 'function'
+          ? vueConfig?.configureWebpack({})?.resolve?.extensions || []
+          : vueConfig?.configureWebpack?.resolve?.extensions || []
+      config.base = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/'
+      if (extensions.length) {
+        config.resolve.extensions = extensions
+      }
 
       config.base = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/'
 

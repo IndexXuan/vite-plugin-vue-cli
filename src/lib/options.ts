@@ -22,6 +22,7 @@ export interface VueCliOptions {
         externals?: Record<string, string>
         resolve?: {
           alias?: Record<string, string>
+          extensions?: string[]
         }
       }
     | ((config: webpack.Configuration) => webpack.Configuration)
