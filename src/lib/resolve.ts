@@ -31,7 +31,7 @@ function getDynamicImport(keys: string[], files: string[], uid: number, dirname:
   let caseStr = ''
   files.forEach(file => {
     const moduleAbsolutePath = getModuleAbsolutePath(dirname, file)
-    caseStr += `case '${file}': return () => import('${moduleAbsolutePath}');\n\t\t`
+    caseStr += `case '${file}': return import('${moduleAbsolutePath}');\n\t\t`
   })
   return `
         (function() {
