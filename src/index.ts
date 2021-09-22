@@ -26,9 +26,6 @@ declare module 'http' {
 
 export type { VueCliOptions }
 
-// TODO: deprecated export
-export { cssLoaderCompatPlugin as cssLoaderCompatPlugin }
-
 export default function vueCli({ cssLoaderCompat = true }: { cssLoaderCompat: boolean }): Plugin[] {
   let config: ResolvedConfig
   const filter = createFilter(
